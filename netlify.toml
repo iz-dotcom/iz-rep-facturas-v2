@@ -1,0 +1,13 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/analizar"
+  to = "/.netlify/functions/analizar"
+  status = 200
+
+[[redirects]]
+  from = "/api/verificar-duplicado"
+  to = "/.netlify/functions/verificar-duplicado"
+  status = 200
