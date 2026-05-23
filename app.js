@@ -1,8 +1,6 @@
 // IZ REP — Lector de Facturas v2.0
 // app.js
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-tJdwpa9IVfjMuv8HVgXlFW8BCPbiXDwGLF9p34bJLIga05GytWq1_ywsP1SN55m4-A/exec';
-
 // ─── ESTADO GLOBAL ────────────────────────────────────────────────
 let currentTab = 'archivo';
 let selectedFile = null;
@@ -20,7 +18,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.add('active');
     document.getElementById('tab-' + tab).classList.add('active');
 
-    // Tab manual: mostrar formulario directo
     if (tab === 'manual') {
       showForm('manual');
     } else {
@@ -143,12 +140,9 @@ function showForm(mode) {
   if (mode === 'manual') {
     ingresadoSelect.value = 'IZ';
     ingresadoSelect.disabled = false;
-    // En manual no hay datos de IA
     clearFormFields();
-    // Remover clase ia-filled de todos
     document.querySelectorAll('.ia-filled').forEach(el => el.classList.remove('ia-filled'));
   } else {
-    // IA
     ingresadoSelect.value = 'IA';
     ingresadoSelect.disabled = true;
   }
@@ -166,7 +160,7 @@ function hideForm() {
 }
 
 function clearFormFields() {
-  const ids = ['f-vendedor', 'f-tipo', 'f-razon-social', 'f-empresa', 'f-fecha', 'f-nro-comprobante', 'f-importe', 'f-ncnd', 'f-dto', 'f-obs'];
+  const ids = ['f-vendedor', 'f-tipo', 'f-razon-social', 'f-empresa', 'f-fecha', 'f-nro-comprobante', 'f-importe', 'f-ncnd', 'f-obs'];
   ids.forEach(id => {
     const el = document.getElementById(id);
     if (el) {
@@ -177,7 +171,6 @@ function clearFormFields() {
 }
 
 function populateForm(data, source) {
-  // Mapeamos los campos del JSON al formulario
   const mapping = {
     'f-vendedor': data.vendedor || '',
     'f-tipo': normalizeTipo(data.tipo),
@@ -187,7 +180,6 @@ function populateForm(data, source) {
     'f-nro-comprobante': data.nroComprobante || '',
     'f-importe': data.importe || '',
     'f-ncnd': data.ncnd || '',
-    'f-dto': data.dto || '',
     'f-obs': data.observaciones || ''
   };
 
@@ -201,7 +193,6 @@ function populateForm(data, source) {
   });
 }
 
-// Normalizar tipo: R y X → B
 function normalizeTipo(tipo) {
   if (!tipo) return '';
   const t = tipo.toString().toUpperCase().trim();
@@ -210,12 +201,9 @@ function normalizeTipo(tipo) {
   return '';
 }
 
-// Fecha de dd/mm/yyyy o similar a formato input date (yyyy-mm-dd)
 function formatDateInput(raw) {
   if (!raw) return '';
-  // Si ya viene en formato yyyy-mm-dd
   if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
-  // dd/mm/yyyy
   const match = raw.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
   if (match) {
     const [, d, m, y] = match;
@@ -244,7 +232,6 @@ function validateForm() {
   return allOk;
 }
 
-// Escuchar cambios en todos los campos requeridos
 REQUIRED_FIELDS.forEach(id => {
   const el = document.getElementById(id);
   if (el) {
@@ -257,7 +244,6 @@ REQUIRED_FIELDS.forEach(id => {
 document.getElementById('btn-submit').addEventListener('click', async () => {
   if (!validateForm()) return;
 
-  // 1. Verificar duplicado
   const nroComp = document.getElementById('f-nro-comprobante').value.trim();
   const empresa = document.getElementById('f-empresa').value.trim();
 
@@ -270,7 +256,6 @@ document.getElementById('btn-submit').addEventListener('click', async () => {
       return;
     }
   } catch (e) {
-    // Si falla la verificación, seguimos igual (mejor cargar que bloquear)
     console.warn('Verificación duplicado fallida:', e);
   }
 
@@ -300,7 +285,7 @@ document.getElementById('modal-confirmar').addEventListener('click', async () =>
   await cargarFactura();
 });
 
-// ─── CARGAR AL SHEET ──────────────────────────────────────────────
+// ─── CARGAR AL SHEET (via Netlify proxy) ──────────────────────────
 async function cargarFactura() {
   document.getElementById('btn-submit').disabled = true;
   showStatus('info', 'Cargando al sheet...');
@@ -309,7 +294,6 @@ async function cargarFactura() {
   const importe = parseFloat(document.getElementById('f-importe').value) || 0;
 
   const payload = {
-    action: 'cargarFactura',
     ingresadoPor: document.getElementById('f-ingresado').value,
     vendedor: document.getElementById('f-vendedor').value,
     razonSocial: document.getElementById('f-razon-social').value.trim(),
@@ -318,22 +302,20 @@ async function cargarFactura() {
     tipo: tipo,
     importeOrig: importe,
     ncnd: parseFloat(document.getElementById('f-ncnd').value) || 0,
-    dto: parseFloat(document.getElementById('f-dto').value) || 0,
     observaciones: document.getElementById('f-obs').value.trim(),
     nroComprobante: document.getElementById('f-nro-comprobante').value.trim()
   };
 
   try {
-    const res = await fetch(APPS_SCRIPT_URL + '?action=cargarFactura', {
+    const res = await fetch('/api/cargar-factura', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      mode: 'no-cors' // Apps Script requiere esto
+      body: JSON.stringify(payload)
     });
 
-    // no-cors no devuelve body, asumimos éxito si no hay error
+    if (!res.ok) throw new Error('Error en el servidor');
+
     showStatus('success', '✓ Factura cargada correctamente.');
-    document.getElementById('btn-nueva').style.display = 'inline-block';
 
   } catch (err) {
     showStatus('error', 'Error al cargar: ' + err.message);
@@ -341,7 +323,6 @@ async function cargarFactura() {
   }
 }
 
-// Fecha yyyy-mm-dd → dd/mm/yyyy para el sheet
 function formatDateSheet(iso) {
   if (!iso) return '';
   const [y, m, d] = iso.split('-');
@@ -350,21 +331,17 @@ function formatDateSheet(iso) {
 
 // ─── NUEVA FACTURA ────────────────────────────────────────────────
 document.getElementById('btn-nueva').addEventListener('click', () => {
-  // Limpiar todo
   clearFormFields();
   hideForm();
 
-  // Reset upload
   selectedFile = null;
   fileInput.value = '';
   fileNameDisplay.textContent = '';
   dropzone.classList.remove('has-file');
   btnAnalyzeFile.disabled = true;
 
-  // Reset texto
   document.getElementById('text-input').value = '';
 
-  // Volver al tab actual activo
   if (currentTab === 'manual') {
     showForm('manual');
   }
