@@ -19,10 +19,18 @@ exports.handler = async (event) => {
   }
 
   try {
-    // Enviamos todo como GET con los datos serializados — Apps Script maneja GET sin redirect
     const params = new URLSearchParams({
       action: 'cargarFactura',
-      data: JSON.stringify(body)
+      ingresadoPor: body.ingresadoPor || '',
+      vendedor: body.vendedor || '',
+      razonSocial: body.razonSocial || '',
+      empresa: body.empresa || '',
+      fecha: body.fecha || '',
+      tipo: body.tipo || '',
+      importeOrig: body.importeOrig || 0,
+      ncnd: body.ncnd || 0,
+      observaciones: body.observaciones || '',
+      nroComprobante: body.nroComprobante || ''
     });
 
     const response = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, {
@@ -32,17 +40,11 @@ exports.handler = async (event) => {
 
     const text = await response.text();
     let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      // Apps Script devolvió algo no-JSON, igual consideramos éxito
-      data = { success: true };
-    }
+    try { data = JSON.parse(text); } catch { data = { success: true }; }
 
     return { statusCode: 200, headers, body: JSON.stringify(data) };
 
   } catch (err) {
-    console.error('Error:', err);
     return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
   }
 };
