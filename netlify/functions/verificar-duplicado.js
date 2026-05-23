@@ -1,7 +1,7 @@
 // netlify/functions/verificar-duplicado.js
 // Consulta al Apps Script si ya existe un comprobante con ese número y empresa
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-tJdwpa9IVfjMuv8HVgXlFW8BCPbiXDwGLF9p34bJLIga05GytWq1_ywsP1SN55m4-A/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzxAYeKWNgU8h75eQ33T5FC_wC-80xbD4ZgqvnnTora4VRUOVs4XFRuNY5lp6kl3DEkzw/exec';
 
 exports.handler = async (event) => {
   const headers = {
