@@ -11,3 +11,8 @@
   from = "/api/verificar-duplicado"
   to = "/.netlify/functions/verificar-duplicado"
   status = 200
+
+[[redirects]]
+  from = "/api/cargar-factura"
+  to = "/.netlify/functions/cargar-factura"
+  status = 200
