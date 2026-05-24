@@ -170,18 +170,46 @@ function clearFormFields() {
   });
 }
 
-function populateForm(data, source) {
+async function populateForm(data, source) {
   const mapping = {
-    'f-vendedor': data.vendedor || '',
     'f-tipo': normalizeTipo(data.tipo),
     'f-razon-social': data.razonSocial || '',
     'f-empresa': data.empresa || '',
     'f-fecha': formatDateInput(data.fecha),
     'f-nro-comprobante': data.nroComprobante || '',
     'f-importe': data.importe || '',
-    'f-ncnd': data.ncnd || '',
     'f-obs': data.observaciones || ''
   };
+
+  Object.entries(mapping).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = val;
+    el.classList.remove('invalid', 'filled', 'ia-filled');
+    if (val && source === 'IA') el.classList.add('ia-filled');
+    else if (val) el.classList.add('filled');
+  });
+
+  // Buscar vendedor automáticamente si hay razón social
+  if (data.razonSocial && source === 'IA') {
+    try {
+      const url = 'https://script.google.com/macros/s/AKfycbwgFRS-wv_FNhqWBBUDVI26z0bSwtJv4rf8nvfocfGnvySQiOfW-vkYBa_Rgd6YFa4vpw/exec'
+        + '?action=buscarVendedor&razonSocial=' + encodeURIComponent(data.razonSocial);
+      const res = await fetch(url);
+      const result = await res.json();
+      const vendedorEl = document.getElementById('f-vendedor');
+      if (result.encontrado && result.vendedor) {
+        vendedorEl.value = result.vendedor;
+        vendedorEl.classList.add('ia-filled');
+      } else {
+        vendedorEl.value = '';
+        showStatus('info', '⚠ Cliente no encontrado en la base — asigná el vendedor y dalo de alta en CLIENTES.');
+      }
+    } catch(e) {
+      console.warn('No se pudo buscar vendedor:', e);
+    }
+  }
+}
 
   Object.entries(mapping).forEach(([id, val]) => {
     const el = document.getElementById(id);
