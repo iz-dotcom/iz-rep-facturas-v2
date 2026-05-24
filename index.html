@@ -36,7 +36,6 @@
       min-height: 100vh;
     }
 
-    /* HEADER */
     header {
       border-bottom: 1px solid var(--border);
       padding: 16px 24px;
@@ -62,14 +61,12 @@
       border-radius: 2px;
     }
 
-    /* LAYOUT */
     .container {
       max-width: 900px;
       margin: 0 auto;
       padding: 32px 24px;
     }
 
-    /* TABS */
     .tabs {
       display: flex;
       gap: 0;
@@ -99,7 +96,6 @@
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
 
-    /* UPLOAD ZONE */
     .upload-zone {
       border: 2px dashed var(--border);
       border-radius: 4px;
@@ -122,11 +118,7 @@
       width: 100%;
       height: 100%;
     }
-    .upload-icon {
-      font-size: 32px;
-      margin-bottom: 12px;
-      display: block;
-    }
+    .upload-icon { font-size: 32px; margin-bottom: 12px; display: block; }
     .upload-title {
       font-family: var(--mono);
       font-size: 14px;
@@ -134,22 +126,10 @@
       color: var(--text);
       margin-bottom: 6px;
     }
-    .upload-sub {
-      color: var(--text-muted);
-      font-size: 12px;
-    }
-    .upload-zone.has-file {
-      border-color: var(--success);
-      background: var(--success-dim);
-    }
-    .file-name {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--success);
-      margin-top: 8px;
-    }
+    .upload-sub { color: var(--text-muted); font-size: 12px; }
+    .upload-zone.has-file { border-color: var(--success); background: var(--success-dim); }
+    .file-name { font-family: var(--mono); font-size: 12px; color: var(--success); margin-top: 8px; }
 
-    /* TEXTAREA */
     .textarea-wrapper { margin-bottom: 24px; }
     textarea {
       width: 100%;
@@ -165,13 +145,9 @@
       min-height: 180px;
       transition: border-color 0.15s;
     }
-    textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
+    textarea:focus { outline: none; border-color: var(--accent); }
     textarea::placeholder { color: var(--text-muted); }
 
-    /* ANALYZE BUTTON */
     .btn-analyze {
       background: var(--accent);
       border: none;
@@ -189,38 +165,14 @@
     .btn-analyze:hover { opacity: 0.85; }
     .btn-analyze:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* LOADER */
-    .loader {
-      display: none;
-      align-items: center;
-      gap: 12px;
-      padding: 16px;
-      color: var(--text-muted);
-      font-family: var(--mono);
-      font-size: 13px;
-    }
+    .loader { display: none; align-items: center; gap: 12px; padding: 16px; color: var(--text-muted); font-family: var(--mono); font-size: 13px; }
     .loader.visible { display: flex; }
-    .spinner {
-      width: 16px; height: 16px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
+    .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* DIVIDER */
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 32px 0;
-    }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
 
-    /* FORM SECTION */
-    .form-section {
-      display: none;
-      animation: fadeIn 0.25s ease;
-    }
+    .form-section { display: none; animation: fadeIn 0.25s ease; }
     .form-section.visible { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
@@ -234,34 +186,15 @@
       margin-bottom: 16px;
     }
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 24px;
-    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
     .form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
     .form-grid.cols-1 { grid-template-columns: 1fr; }
 
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+    .field { display: flex; flex-direction: column; gap: 6px; }
     .field.full { grid-column: 1 / -1; }
 
-    label {
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-      text-transform: uppercase;
-    }
-    label .required-mark {
-      color: var(--danger);
-      margin-left: 2px;
-    }
+    label { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; color: var(--text-muted); text-transform: uppercase; }
+    label .required-mark { color: var(--danger); margin-left: 2px; }
 
     input, select {
       background: var(--surface);
@@ -274,34 +207,15 @@
       transition: border-color 0.15s;
       width: 100%;
     }
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
+    input:focus, select:focus { outline: none; border-color: var(--accent); }
     input::placeholder { color: var(--text-muted); }
     select option { background: var(--surface2); }
 
-    /* Campo requerido vacío */
-    input.invalid, select.invalid {
-      border-color: var(--danger);
-      background: var(--danger-dim);
-    }
-    input.filled, select.filled {
-      border-color: var(--border-active);
-    }
+    input.invalid, select.invalid { border-color: var(--danger); background: var(--danger-dim); }
+    input.filled, select.filled { border-color: var(--border-active); }
+    input.ia-filled { border-color: #4a7a8a; background: #111f24; }
 
-    /* IA extrajo valor */
-    input.ia-filled {
-      border-color: #4a7a8a;
-      background: #111f24;
-    }
-
-    /* SUBMIT */
-    .submit-row {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-    }
+    .submit-row { display: flex; gap: 12px; margin-top: 24px; }
     .btn-submit {
       background: var(--success);
       border: none;
@@ -332,63 +246,29 @@
       padding: 14px 20px;
       transition: all 0.15s;
     }
-    .btn-nueva:hover {
-      border-color: var(--border-active);
-      color: var(--text);
-    }
+    .btn-nueva:hover { border-color: var(--border-active); color: var(--text); }
 
-    /* STATUS MESSAGES */
-    .status-bar {
-      border-radius: 3px;
-      font-family: var(--mono);
-      font-size: 12px;
-      margin-top: 12px;
-      padding: 12px 16px;
-      display: none;
-    }
+    .status-bar { border-radius: 3px; font-family: var(--mono); font-size: 12px; margin-top: 12px; padding: 12px 16px; display: none; }
     .status-bar.visible { display: block; }
     .status-bar.success { background: var(--success-dim); color: var(--success); border: 1px solid var(--success); }
     .status-bar.error { background: var(--danger-dim); color: var(--danger); border: 1px solid var(--danger); }
     .status-bar.info { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); }
 
-    /* MODAL */
     .modal-overlay {
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.7);
-      display: flex;
       align-items: center;
       justify-content: center;
       z-index: 100;
       display: none;
     }
     .modal-overlay.visible { display: flex; }
-    .modal {
-      background: var(--surface);
-      border: 1px solid var(--border-active);
-      border-radius: 4px;
-      padding: 32px;
-      max-width: 420px;
-      width: 90%;
-    }
-    .modal-title {
-      font-family: var(--mono);
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
-    .modal-body {
-      color: var(--text-muted);
-      font-size: 13px;
-      line-height: 1.6;
-      margin-bottom: 24px;
-    }
+    .modal { background: var(--surface); border: 1px solid var(--border-active); border-radius: 4px; padding: 32px; max-width: 420px; width: 90%; }
+    .modal-title { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--accent); margin-bottom: 12px; }
+    .modal-body { color: var(--text-muted); font-size: 13px; line-height: 1.6; margin-bottom: 24px; }
     .modal-body strong { color: var(--text); }
-    .modal-actions {
-      display: flex;
-      gap: 12px;
-    }
+    .modal-actions { display: flex; gap: 12px; }
     .btn-modal-cancel {
       background: none;
       border: 1px solid var(--border);
@@ -418,15 +298,29 @@
     }
     .btn-modal-confirm:hover { opacity: 0.85; }
 
-    /* VALIDATION SUMMARY */
-    .validation-msg {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--danger);
-      margin-top: 16px;
-      display: none;
-    }
+    .validation-msg { font-family: var(--mono); font-size: 11px; color: var(--danger); margin-top: 16px; display: none; }
     .validation-msg.visible { display: block; }
+
+    /* CANDIDATOS */
+    .btn-candidato {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      font-family: var(--sans);
+      font-size: 13px;
+      text-align: left;
+      transition: all 0.15s;
+      width: 100%;
+    }
+    .btn-candidato:hover { border-color: var(--accent); background: var(--accent-dim); }
+    .candidato-nombre { flex: 1; }
+    .candidato-score { font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-left: 12px; }
 
     @media (max-width: 600px) {
       .form-grid { grid-template-columns: 1fr; }
@@ -444,14 +338,12 @@
 
 <div class="container">
 
-  <!-- TABS -->
   <div class="tabs">
     <button class="tab-btn active" data-tab="archivo">📎 Archivo</button>
     <button class="tab-btn" data-tab="texto">📋 Texto</button>
     <button class="tab-btn" data-tab="manual">✏️ Manual</button>
   </div>
 
-  <!-- TAB: ARCHIVO -->
   <div class="tab-pane active" id="tab-archivo">
     <div class="upload-zone" id="dropzone">
       <input type="file" id="file-input" accept=".pdf,image/*" />
@@ -467,7 +359,6 @@
     </div>
   </div>
 
-  <!-- TAB: TEXTO -->
   <div class="tab-pane" id="tab-texto">
     <div class="textarea-wrapper">
       <textarea id="text-input" placeholder="Pegá el texto de la factura acá...&#10;&#10;Puede ser texto copiado de un PDF, un correo, o cualquier formato."></textarea>
@@ -479,20 +370,15 @@
     </div>
   </div>
 
-  <!-- TAB: MANUAL -->
   <div class="tab-pane" id="tab-manual">
-    <!-- El formulario manual va directo, sin IA -->
   </div>
 
-  <!-- DIVIDER -->
   <hr class="divider" id="form-divider" style="display:none" />
 
-  <!-- FORMULARIO (compartido entre tabs) -->
   <div class="form-section" id="form-section">
 
     <div class="section-label">Datos extraídos — revisá y completá</div>
 
-    <!-- Fila 1: Quien carga / Vendedor -->
     <div class="form-grid cols-3">
       <div class="field">
         <label>Ingresado por</label>
@@ -523,7 +409,6 @@
       </div>
     </div>
 
-    <!-- Fila 2: Cliente / Empresa / Fecha -->
     <div class="form-grid">
       <div class="field">
         <label>Razón Social <span class="required-mark">*</span></label>
@@ -582,7 +467,6 @@
       </div>
     </div>
 
-    <!-- Observaciones -->
     <div class="form-grid cols-1">
       <div class="field">
         <label>Observaciones</label>
@@ -590,12 +474,10 @@
       </div>
     </div>
 
-    <!-- Mensaje de validación -->
     <div class="validation-msg" id="validation-msg">
       ⚠ Completá todos los campos obligatorios antes de cargar.
     </div>
 
-    <!-- BOTONES -->
     <div class="submit-row">
       <button class="btn-submit" id="btn-submit" disabled>Cargar al sheet →</button>
       <button class="btn-nueva" id="btn-nueva">+ Nueva factura</button>
@@ -604,10 +486,8 @@
     <div class="status-bar" id="status-bar"></div>
 
   </div>
-  <!-- /form-section -->
 
 </div>
-<!-- /container -->
 
 <!-- MODAL DUPLICADO -->
 <div class="modal-overlay" id="modal-duplicado">
@@ -637,36 +517,8 @@
       <button class="btn-modal-cancel" onclick="descartarCandidatos()">No es ninguno</button>
     </div>
   </div>
-</div>  
-  
-.btn-candidato {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  color: var(--text);
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  font-family: var(--sans);
-  font-size: 13px;
-  text-align: left;
-  transition: all 0.15s;
-  width: 100%;
-}
-.btn-candidato:hover {
-  border-color: var(--accent);
-  background: var(--accent-dim);
-}
-.candidato-nombre { flex: 1; }
-.candidato-score {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-left: 12px;
-}  
-  
+</div>
+
 <script src="app.js"></script>
 </body>
 </html>
