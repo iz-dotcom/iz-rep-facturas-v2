@@ -186,7 +186,9 @@ async function populateForm(data, source) {
       console.warn('No se pudo buscar vendedor:', e);
     }
   }
+}
 
+// ─── NORMALIZACIÓN ────────────────────────────────────────────────
 function normalizeTipo(tipo) {
   if (!tipo) return '';
   const t = tipo.toString().toUpperCase().trim();
@@ -345,6 +347,7 @@ function fileToBase64(file) {
     reader.readAsDataURL(file);
   });
 }
+
 // ─── CANDIDATOS ───────────────────────────────────────────────────
 function mostrarCandidatos(candidatos, razonSocialOriginal) {
   const modal = document.getElementById('modal-candidatos');
