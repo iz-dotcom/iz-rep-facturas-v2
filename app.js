@@ -315,13 +315,18 @@ async function cargarFactura() {
 
     if (!res.ok) throw new Error('Error en el servidor');
 
-    showStatus('success', '✓ Factura cargada correctamente.');
+    const result = await res.json();
+
+    if (result.clienteNoEncontrado) {
+      showStatus('success', '✓ Factura cargada. ⚠ Cliente no encontrado en la base — asigná el vendedor manualmente y dalo de alta en la hoja CLIENTES.');
+    } else {
+      showStatus('success', '✓ Factura cargada correctamente.');
+    }
 
   } catch (err) {
     showStatus('error', 'Error al cargar: ' + err.message);
     document.getElementById('btn-submit').disabled = false;
   }
-}
 
 function formatDateSheet(iso) {
   if (!iso) return '';
