@@ -1,7 +1,8 @@
 // IZ REP — Lector de Facturas v2.0
 // app.js
 
-// ─── ESTADO GLOBAL ────────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwgFRS-wv_FNhqWBBUDVI26z0bSwtJv4rf8nvfocfGnvySQiOfW-vkYBa_Rgd6YFa4vpw/exec';
+
 let currentTab = 'archivo';
 let selectedFile = null;
 let formReady = false;
@@ -11,22 +12,16 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const tab = btn.dataset.tab;
     currentTab = tab;
-
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-
     btn.classList.add('active');
     document.getElementById('tab-' + tab).classList.add('active');
-
-    if (tab === 'manual') {
-      showForm('manual');
-    } else {
-      hideForm();
-    }
+    if (tab === 'manual') showForm('manual');
+    else hideForm();
   });
 });
 
-// ─── UPLOAD / DRAG & DROP ─────────────────────────────────────────
+// ─── UPLOAD ───────────────────────────────────────────────────────
 const dropzone = document.getElementById('dropzone');
 const fileInput = document.getElementById('file-input');
 const fileNameDisplay = document.getElementById('file-name-display');
@@ -35,17 +30,12 @@ const btnAnalyzeFile = document.getElementById('btn-analyze-file');
 fileInput.addEventListener('change', () => {
   if (fileInput.files[0]) handleFile(fileInput.files[0]);
 });
-
-dropzone.addEventListener('dragover', e => {
-  e.preventDefault();
-  dropzone.classList.add('dragging');
-});
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragging'); });
 dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragging'));
 dropzone.addEventListener('drop', e => {
   e.preventDefault();
   dropzone.classList.remove('dragging');
-  const f = e.dataTransfer.files[0];
-  if (f) handleFile(f);
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
 });
 
 function handleFile(file) {
@@ -63,23 +53,19 @@ function handleFile(file) {
 // ─── ANALIZAR ARCHIVO ─────────────────────────────────────────────
 btnAnalyzeFile.addEventListener('click', async () => {
   if (!selectedFile) return;
-
   const loader = document.getElementById('loader-file');
   btnAnalyzeFile.disabled = true;
   loader.classList.add('visible');
   hideForm();
-
   try {
     const base64 = await fileToBase64(selectedFile);
     const mediaType = selectedFile.type;
     const isImage = mediaType.startsWith('image/');
-
     const payload = isImage
       ? { type: 'image', data: base64, mediaType }
       : { type: 'pdf', data: base64 };
-
     const result = await callAnalyzeAPI(payload);
-    populateForm(result, 'IA');
+    await populateForm(result, 'IA');
     showForm('ia');
   } catch (err) {
     showStatus('error', 'Error al analizar: ' + err.message);
@@ -92,19 +78,14 @@ btnAnalyzeFile.addEventListener('click', async () => {
 // ─── ANALIZAR TEXTO ───────────────────────────────────────────────
 document.getElementById('btn-analyze-text').addEventListener('click', async () => {
   const text = document.getElementById('text-input').value.trim();
-  if (!text) {
-    showStatus('error', 'Pegá el texto de la factura primero.');
-    return;
-  }
-
+  if (!text) { showStatus('error', 'Pegá el texto de la factura primero.'); return; }
   const loader = document.getElementById('loader-text');
   document.getElementById('btn-analyze-text').disabled = true;
   loader.classList.add('visible');
   hideForm();
-
   try {
     const result = await callAnalyzeAPI({ type: 'text', text });
-    populateForm(result, 'IA');
+    await populateForm(result, 'IA');
     showForm('ia');
   } catch (err) {
     showStatus('error', 'Error al analizar: ' + err.message);
@@ -114,19 +95,16 @@ document.getElementById('btn-analyze-text').addEventListener('click', async () =
   }
 });
 
-// ─── LLAMADA A NETLIFY FUNCTION ───────────────────────────────────
 async function callAnalyzeAPI(payload) {
   const response = await fetch('/api/analizar', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
     throw new Error(err.error || 'Error en el servidor (' + response.status + ')');
   }
-
   return response.json();
 }
 
@@ -134,19 +112,15 @@ async function callAnalyzeAPI(payload) {
 function showForm(mode) {
   document.getElementById('form-divider').style.display = 'block';
   document.getElementById('form-section').classList.add('visible');
-
   const ingresadoSelect = document.getElementById('f-ingresado');
-
   if (mode === 'manual') {
     ingresadoSelect.value = 'IZ';
     ingresadoSelect.disabled = false;
     clearFormFields();
-    document.querySelectorAll('.ia-filled').forEach(el => el.classList.remove('ia-filled'));
   } else {
     ingresadoSelect.value = 'IA';
     ingresadoSelect.disabled = true;
   }
-
   formReady = true;
   validateForm();
 }
@@ -160,13 +134,10 @@ function hideForm() {
 }
 
 function clearFormFields() {
-  const ids = ['f-vendedor', 'f-tipo', 'f-razon-social', 'f-empresa', 'f-fecha', 'f-nro-comprobante', 'f-importe', 'f-ncnd', 'f-obs'];
+  const ids = ['f-vendedor', 'f-tipo', 'f-razon-social', 'f-empresa', 'f-fecha', 'f-nro-comprobante', 'f-importe', 'f-obs'];
   ids.forEach(id => {
     const el = document.getElementById(id);
-    if (el) {
-      el.value = '';
-      el.classList.remove('invalid', 'filled', 'ia-filled');
-    }
+    if (el) { el.value = ''; el.classList.remove('invalid', 'filled', 'ia-filled'); }
   });
 }
 
@@ -190,11 +161,10 @@ async function populateForm(data, source) {
     else if (val) el.classList.add('filled');
   });
 
-  // Buscar vendedor automáticamente si hay razón social
+  // Buscar vendedor automáticamente
   if (data.razonSocial && source === 'IA') {
     try {
-      const url = 'https://script.google.com/macros/s/AKfycbwgFRS-wv_FNhqWBBUDVI26z0bSwtJv4rf8nvfocfGnvySQiOfW-vkYBa_Rgd6YFa4vpw/exec'
-        + '?action=buscarVendedor&razonSocial=' + encodeURIComponent(data.razonSocial);
+      const url = APPS_SCRIPT_URL + '?action=buscarVendedor&razonSocial=' + encodeURIComponent(data.razonSocial);
       const res = await fetch(url);
       const result = await res.json();
       const vendedorEl = document.getElementById('f-vendedor');
@@ -203,22 +173,12 @@ async function populateForm(data, source) {
         vendedorEl.classList.add('ia-filled');
       } else {
         vendedorEl.value = '';
-        showStatus('info', '⚠ Cliente no encontrado en la base — asigná el vendedor y dalo de alta en CLIENTES.');
+        showStatus('info', '⚠ Cliente no encontrado en CLIENTES — asigná el vendedor manualmente y dalo de alta en la hoja.');
       }
     } catch(e) {
       console.warn('No se pudo buscar vendedor:', e);
     }
   }
-}
-
-  Object.entries(mapping).forEach(([id, val]) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.value = val;
-    el.classList.remove('invalid', 'filled', 'ia-filled');
-    if (val && source === 'IA') el.classList.add('ia-filled');
-    else if (val) el.classList.add('filled');
-  });
 }
 
 function normalizeTipo(tipo) {
@@ -245,7 +205,6 @@ const REQUIRED_FIELDS = ['f-vendedor', 'f-tipo', 'f-razon-social', 'f-empresa', 
 
 function validateForm() {
   if (!formReady) return;
-
   let allOk = true;
   REQUIRED_FIELDS.forEach(id => {
     const el = document.getElementById(id);
@@ -254,7 +213,6 @@ function validateForm() {
     el.classList.toggle('invalid', !ok);
     if (!ok) allOk = false;
   });
-
   document.getElementById('btn-submit').disabled = !allOk;
   document.getElementById('validation-msg').classList.toggle('visible', !allOk);
   return allOk;
@@ -271,12 +229,9 @@ REQUIRED_FIELDS.forEach(id => {
 // ─── SUBMIT ───────────────────────────────────────────────────────
 document.getElementById('btn-submit').addEventListener('click', async () => {
   if (!validateForm()) return;
-
   const nroComp = document.getElementById('f-nro-comprobante').value.trim();
   const empresa = document.getElementById('f-empresa').value.trim();
-
   showStatus('info', 'Verificando duplicados...');
-
   try {
     const dupResult = await checkDuplicado(nroComp, empresa);
     if (dupResult.duplicado) {
@@ -286,7 +241,6 @@ document.getElementById('btn-submit').addEventListener('click', async () => {
   } catch (e) {
     console.warn('Verificación duplicado fallida:', e);
   }
-
   await cargarFactura();
 });
 
@@ -298,7 +252,7 @@ async function checkDuplicado(nroComp, empresa) {
 
 function showDuplicadoModal(nro, empresa, entry) {
   document.getElementById('modal-body').innerHTML =
-    `El comprobante <strong>${nro}</strong> de <strong>${empresa}</strong> ya existe en el sheet (fila ${entry || '?'}).<br/><br/>¿Querés cargarlo igual?`;
+    `El comprobante <strong>${nro}</strong> de <strong>${empresa}</strong> ya existe (fila ${entry || '?'}).<br/><br/>¿Querés cargarlo igual?`;
   document.getElementById('modal-duplicado').classList.add('visible');
   document.getElementById('status-bar').classList.remove('visible');
 }
@@ -313,13 +267,10 @@ document.getElementById('modal-confirmar').addEventListener('click', async () =>
   await cargarFactura();
 });
 
-// ─── CARGAR AL SHEET (via Netlify proxy) ──────────────────────────
+// ─── CARGAR AL SHEET ──────────────────────────────────────────────
 async function cargarFactura() {
   document.getElementById('btn-submit').disabled = true;
   showStatus('info', 'Cargando al sheet...');
-
-  const tipo = document.getElementById('f-tipo').value;
-  const importe = parseFloat(document.getElementById('f-importe').value) || 0;
 
   const payload = {
     ingresadoPor: document.getElementById('f-ingresado').value,
@@ -327,8 +278,8 @@ async function cargarFactura() {
     razonSocial: document.getElementById('f-razon-social').value.trim(),
     empresa: document.getElementById('f-empresa').value,
     fecha: formatDateSheet(document.getElementById('f-fecha').value),
-    tipo: tipo,
-    importeOrig: importe,
+    tipo: document.getElementById('f-tipo').value,
+    importeOrig: parseFloat(document.getElementById('f-importe').value) || 0,
     ncnd: 0,
     observaciones: document.getElementById('f-obs').value.trim(),
     nroComprobante: document.getElementById('f-nro-comprobante').value.trim()
@@ -340,21 +291,18 @@ async function cargarFactura() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-
     if (!res.ok) throw new Error('Error en el servidor');
-
     const result = await res.json();
-
     if (result.clienteNoEncontrado) {
-      showStatus('success', '✓ Factura cargada. ⚠ Cliente no encontrado en la base — asigná el vendedor manualmente y dalo de alta en la hoja CLIENTES.');
+      showStatus('success', '✓ Factura cargada. ⚠ Cliente no encontrado en CLIENTES — asigná el vendedor y dalo de alta.');
     } else {
       showStatus('success', '✓ Factura cargada correctamente.');
     }
-
   } catch (err) {
     showStatus('error', 'Error al cargar: ' + err.message);
     document.getElementById('btn-submit').disabled = false;
   }
+}
 
 function formatDateSheet(iso) {
   if (!iso) return '';
@@ -366,18 +314,13 @@ function formatDateSheet(iso) {
 document.getElementById('btn-nueva').addEventListener('click', () => {
   clearFormFields();
   hideForm();
-
   selectedFile = null;
   fileInput.value = '';
   fileNameDisplay.textContent = '';
   dropzone.classList.remove('has-file');
   btnAnalyzeFile.disabled = true;
-
   document.getElementById('text-input').value = '';
-
-  if (currentTab === 'manual') {
-    showForm('manual');
-  }
+  if (currentTab === 'manual') showForm('manual');
 });
 
 // ─── STATUS BAR ───────────────────────────────────────────────────
@@ -387,7 +330,7 @@ function showStatus(type, msg) {
   bar.className = 'status-bar visible ' + type;
 }
 
-// ─── UTIL: FILE → BASE64 ──────────────────────────────────────────
+// ─── UTIL ─────────────────────────────────────────────────────────
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
