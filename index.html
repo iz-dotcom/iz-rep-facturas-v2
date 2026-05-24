@@ -624,6 +624,49 @@
   </div>
 </div>
 
+<!-- MODAL CANDIDATOS -->
+<div class="modal-overlay" id="modal-candidatos">
+  <div class="modal">
+    <div class="modal-title">🔍 Cliente no encontrado exactamente</div>
+    <div class="modal-body">
+      La factura dice: <strong id="candidatos-original"></strong><br/><br/>
+      ¿Es alguno de estos?
+    </div>
+    <div id="candidatos-lista" style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;"></div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="descartarCandidatos()">No es ninguno</button>
+    </div>
+  </div>
+</div>  
+  
+.btn-candidato {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  font-family: var(--sans);
+  font-size: 13px;
+  text-align: left;
+  transition: all 0.15s;
+  width: 100%;
+}
+.btn-candidato:hover {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.candidato-nombre { flex: 1; }
+.candidato-score {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 12px;
+}  
+  
 <script src="app.js"></script>
 </body>
 </html>
