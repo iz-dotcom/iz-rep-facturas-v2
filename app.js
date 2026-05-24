@@ -301,7 +301,7 @@ async function cargarFactura() {
     fecha: formatDateSheet(document.getElementById('f-fecha').value),
     tipo: tipo,
     importeOrig: importe,
-    ncnd: parseFloat(document.getElementById('f-ncnd').value) || 0,
+    ncnd: 0,
     observaciones: document.getElementById('f-obs').value.trim(),
     nroComprobante: document.getElementById('f-nro-comprobante').value.trim()
   };
