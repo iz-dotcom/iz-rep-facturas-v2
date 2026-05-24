@@ -168,9 +168,16 @@ async function populateForm(data, source) {
       const res = await fetch(url);
       const result = await res.json();
       const vendedorEl = document.getElementById('f-vendedor');
+
       if (result.encontrado && result.vendedor) {
         vendedorEl.value = result.vendedor;
         vendedorEl.classList.add('ia-filled');
+        if (result.razonSocial) {
+          document.getElementById('f-razon-social').value = result.razonSocial;
+          document.getElementById('f-razon-social').classList.add('ia-filled');
+        }
+      } else if (result.candidatos && result.candidatos.length > 0) {
+        mostrarCandidatos(result.candidatos, data.razonSocial);
       } else {
         vendedorEl.value = '';
         showStatus('info', '⚠ Cliente no encontrado en CLIENTES — asigná el vendedor manualmente y dalo de alta en la hoja.');
@@ -179,7 +186,6 @@ async function populateForm(data, source) {
       console.warn('No se pudo buscar vendedor:', e);
     }
   }
-}
 
 function normalizeTipo(tipo) {
   if (!tipo) return '';
@@ -338,4 +344,31 @@ function fileToBase64(file) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+// ─── CANDIDATOS ───────────────────────────────────────────────────
+function mostrarCandidatos(candidatos, razonSocialOriginal) {
+  const modal = document.getElementById('modal-candidatos');
+  document.getElementById('candidatos-original').textContent = razonSocialOriginal;
+  const lista = document.getElementById('candidatos-lista');
+  lista.innerHTML = candidatos.map(c => `
+    <button class="btn-candidato" onclick="seleccionarCandidato('${c.razonSocial.replace(/'/g, "\\'")}', '${c.vendedor}')">
+      <span class="candidato-nombre">${c.razonSocial}</span>
+      <span class="candidato-score">${c.score}%</span>
+    </button>
+  `).join('');
+  modal.classList.add('visible');
+}
+
+function seleccionarCandidato(razonSocial, vendedor) {
+  document.getElementById('f-razon-social').value = razonSocial;
+  document.getElementById('f-razon-social').classList.add('ia-filled');
+  document.getElementById('f-vendedor').value = vendedor;
+  document.getElementById('f-vendedor').classList.add('ia-filled');
+  document.getElementById('modal-candidatos').classList.remove('visible');
+  validateForm();
+}
+
+function descartarCandidatos() {
+  document.getElementById('modal-candidatos').classList.remove('visible');
+  showStatus('info', '⚠ Cliente no encontrado — asigná vendedor manualmente y dalo de alta en CLIENTES.');
 }
