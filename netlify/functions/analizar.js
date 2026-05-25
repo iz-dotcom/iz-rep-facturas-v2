@@ -14,7 +14,7 @@ REGLAS FUNDAMENTALES
 
 1. PROVEEDOR = quien EMITE el documento. Nunca el cliente.
 2. Si un campo no se puede identificar con certeza, dejarlo como string vacío "".
-3. PDFs multipágina: analizar solo la primera página.
+3. PDFs multipágina: si el documento tiene varias páginas del MISMO comprobante (ORIGINAL, DUPLICADO, COPIA), analizar solo la primera. Si en cambio el comprobante se extiende en varias páginas (items en páginas 1 y 2, total en página 3), leer todas las páginas necesarias para encontrar el total.
 4. Ignorar descuentos en el cuerpo del documento. Cargar siempre el TOTAL del pie.
 5. Tipos R y X → convertir automáticamente a tipo B.
 6. Documentos tipo "Orden #XXXX" o "Orden #XXXX - Paquete #X" sin tipo de comprobante explícito → tipo = "B".
@@ -43,7 +43,7 @@ Cuando identifiques alguno de estos elementos, usá el nombre normalizado:
 - Logo o texto "Grupo Cotillón" → "GRUPO COTILLON"
 - Frase "NO SE ADMITEN DEVOLUCIONES DE MERCADERIA SIN LA PREVIA APROBACION DE NUESTRA GERENCIA" → "CADENACI"
 - Comprobante que empieza con A999990 → "CADENACI"
-- Logo o texto "Colorsille", "Casa Lavalle", "casalavalle" o documento con encabezado "Orden #" y "Paquete #" → "CASA LAVALLE", tipo = "B"
+- Logo o texto "Colorsille", "Casa Lavalle", "casalavalle", "BEEZRAT S.R.L.", "BEEZRAT" o documento con encabezado "Orden #" y "Paquete #" → "CASA LAVALLE", tipo = "B"
 
 ═══════════════════════════════════════════════════
 LISTA DE PROVEEDORES VÁLIDOS
@@ -89,7 +89,6 @@ Notas sobre cada campo:
 - observaciones: cualquier dato relevante no capturado (remito asociado, condición especial, etc.)`;
 
 exports.handler = async (event) => {
-  // CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -148,7 +147,7 @@ exports.handler = async (event) => {
       },
       {
         type: 'text',
-        text: 'Analizá este PDF de factura (solo la primera página) y devolvé el JSON.'
+        text: 'Analizá este PDF de factura y devolvé el JSON. Si el total aparece en la última página, usalo.'
       }
     ];
   } else {
