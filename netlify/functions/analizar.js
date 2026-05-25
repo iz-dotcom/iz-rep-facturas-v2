@@ -17,6 +17,7 @@ REGLAS FUNDAMENTALES
 3. PDFs multipágina: analizar solo la primera página.
 4. Ignorar descuentos en el cuerpo del documento. Cargar siempre el TOTAL del pie.
 5. Tipos R y X → convertir automáticamente a tipo B.
+6. Documentos tipo "Orden #XXXX" o "Orden #XXXX - Paquete #X" sin tipo de comprobante explícito → tipo = "B".
 
 ═══════════════════════════════════════════════════
 REGLAS DE IMPORTE SEGÚN TIPO
@@ -42,6 +43,7 @@ Cuando identifiques alguno de estos elementos, usá el nombre normalizado:
 - Logo o texto "Grupo Cotillón" → "GRUPO COTILLON"
 - Frase "NO SE ADMITEN DEVOLUCIONES DE MERCADERIA SIN LA PREVIA APROBACION DE NUESTRA GERENCIA" → "CADENACI"
 - Comprobante que empieza con A999990 → "CADENACI"
+- Logo o texto "Colorsille", "Casa Lavalle", "casalavalle" o documento con encabezado "Orden #" y "Paquete #" → "CASA LAVALLE", tipo = "B"
 
 ═══════════════════════════════════════════════════
 LISTA DE PROVEEDORES VÁLIDOS
@@ -110,7 +112,6 @@ exports.handler = async (event) => {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'JSON inválido' }) };
   }
 
-  // Construir el mensaje para Claude según el tipo de input
   let userContent;
 
   if (body.type === 'text') {
@@ -154,7 +155,6 @@ exports.handler = async (event) => {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Tipo de input no válido' }) };
   }
 
-  // Llamada a Anthropic
   try {
     const response = await fetch(ANTHROPIC_API_URL, {
       method: 'POST',
@@ -180,10 +180,8 @@ exports.handler = async (event) => {
     const aiData = await response.json();
     const rawText = aiData.content?.[0]?.text || '{}';
 
-    // Parsear el JSON devuelto por Claude
     let parsed;
     try {
-      // Limpiar posibles bloques de código que Claude agregue
       const cleaned = rawText.replace(/```json|```/g, '').trim();
       parsed = JSON.parse(cleaned);
     } catch {
