@@ -70,6 +70,7 @@ Respondé ÚNICAMENTE con este JSON (sin markdown, sin bloques de código):
   "tipo": "",
   "nroComprobante": "",
   "importe": 0,
+  "importeNeto": 0,
   "ncnd": 0,
   "dto": 0,
   "vendedor": "",
@@ -83,6 +84,7 @@ Notas sobre cada campo:
 - tipo: "A", "B", "E" (R y X convertir a B)
 - nroComprobante: número completo del comprobante (ej: "0001-00012345")
 - importe: número decimal, según regla del tipo (con IVA para A, sin IVA para B/E)
+- importeNeto: el subtotal sin IVA del documento (campo "Total Neto", "Subtotal" o "Neto"). Si no existe → 0
 - ncnd: monto de nota de crédito o débito si aplica, sino 0
 - dto: SIEMPRE 0 — el descuento se aplica desde la hoja de proveedores, no desde el documento
 - vendedor: dejar siempre "" (lo asigna el usuario)
