@@ -2,10 +2,12 @@
 // app.js
 
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwgFRS-wv_FNhqWBBUDVI26z0bSwtJv4rf8nvfocfGnvySQiOfW-vkYBa_Rgd6YFa4vpw/exec';
+const PROVEEDORES_SPLIT = ['EVACOR', 'CLANDESTINE'];
 
 let currentTab = 'archivo';
 let selectedFile = null;
 let formReady = false;
+let splitData = null; // guarda importeNeto cuando es operación 50%
 
 // ─── TABS ─────────────────────────────────────────────────────────
 document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -131,6 +133,7 @@ function hideForm() {
   document.getElementById('status-bar').classList.remove('visible');
   document.getElementById('validation-msg').classList.remove('visible');
   formReady = false;
+  splitData = null;
 }
 
 function clearFormFields() {
@@ -161,6 +164,14 @@ async function populateForm(data, source) {
     else if (val) el.classList.add('filled');
   });
 
+  // Guardar importeNeto para operaciones 50%
+  splitData = (data.importeNeto && data.importeNeto > 0) ? { importeNeto: data.importeNeto } : null;
+
+  // Mostrar modal 50/100 si el proveedor lo requiere
+  if (source === 'IA' && data.empresa && PROVEEDORES_SPLIT.includes(data.empresa) && splitData) {
+    mostrarModalSplit(data.empresa);
+  }
+
   // Buscar vendedor automáticamente
   if (data.razonSocial && source === 'IA') {
     try {
@@ -188,7 +199,6 @@ async function populateForm(data, source) {
   }
 }
 
-// ─── NORMALIZACIÓN ────────────────────────────────────────────────
 function normalizeTipo(tipo) {
   if (!tipo) return '';
   const t = tipo.toString().toUpperCase().trim();
@@ -232,6 +242,22 @@ REQUIRED_FIELDS.forEach(id => {
     el.addEventListener('input', validateForm);
     el.addEventListener('change', validateForm);
   }
+});
+
+// ─── MODAL SPLIT 50/100 ───────────────────────────────────────────
+function mostrarModalSplit(empresa) {
+  document.getElementById('split-empresa').textContent = empresa;
+  document.getElementById('modal-split').classList.add('visible');
+}
+
+document.getElementById('btn-split-100').addEventListener('click', () => {
+  splitData = null;
+  document.getElementById('modal-split').classList.remove('visible');
+});
+
+document.getElementById('btn-split-50').addEventListener('click', () => {
+  document.getElementById('modal-split').classList.remove('visible');
+  showStatus('info', 'Operación al 50% — se cargarán dos líneas al guardar.');
 });
 
 // ─── SUBMIT ───────────────────────────────────────────────────────
@@ -280,7 +306,7 @@ async function cargarFactura() {
   document.getElementById('btn-submit').disabled = true;
   showStatus('info', 'Cargando al sheet...');
 
-  const payload = {
+  const base = {
     ingresadoPor: document.getElementById('f-ingresado').value,
     vendedor: document.getElementById('f-vendedor').value,
     razonSocial: document.getElementById('f-razon-social').value.trim(),
@@ -294,17 +320,36 @@ async function cargarFactura() {
   };
 
   try {
+    // Línea A — siempre
     const res = await fetch('/api/cargar-factura', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(base)
     });
     if (!res.ok) throw new Error('Error en el servidor');
-    const result = await res.json();
-    if (result.clienteNoEncontrado) {
-      showStatus('success', '✓ Factura cargada. ⚠ Cliente no encontrado en CLIENTES — asigná el vendedor y dalo de alta.');
+
+    // Línea B — solo si es operación 50%
+    if (splitData && splitData.importeNeto > 0) {
+      const lineaB = {
+        ...base,
+        tipo: 'B',
+        importeOrig: splitData.importeNeto,
+        nroComprobante: base.nroComprobante + '-B'
+      };
+      const resB = await fetch('/api/cargar-factura', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(lineaB)
+      });
+      if (!resB.ok) throw new Error('Error cargando línea B');
+      showStatus('success', '✓ Dos líneas cargadas correctamente (A + B).');
     } else {
-      showStatus('success', '✓ Factura cargada correctamente.');
+      const result = await res.json();
+      if (result.clienteNoEncontrado) {
+        showStatus('success', '✓ Factura cargada. ⚠ Cliente no encontrado en CLIENTES — asigná el vendedor y dalo de alta.');
+      } else {
+        showStatus('success', '✓ Factura cargada correctamente.');
+      }
     }
   } catch (err) {
     showStatus('error', 'Error al cargar: ' + err.message);
