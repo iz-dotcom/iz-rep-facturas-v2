@@ -284,10 +284,10 @@
     }
     .btn-modal-cancel:hover { border-color: var(--border-active); color: var(--text); }
     .btn-modal-confirm {
-      background: var(--danger);
+      background: var(--accent);
       border: none;
       border-radius: 3px;
-      color: #fff;
+      color: #0f0f0f;
       cursor: pointer;
       flex: 1;
       font-family: var(--mono);
@@ -515,6 +515,22 @@
     <div id="candidatos-lista" style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;"></div>
     <div class="modal-actions">
       <button class="btn-modal-cancel" onclick="descartarCandidatos()">No es ninguno</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SPLIT 50/100 -->
+<div class="modal-overlay" id="modal-split">
+  <div class="modal">
+    <div class="modal-title">⚡ Operación <span id="split-empresa"></span></div>
+    <div class="modal-body">
+      ¿Esta operación es al <strong>100%</strong> o al <strong>50%</strong>?<br/><br/>
+      <strong>100%</strong> → se carga una sola línea.<br/>
+      <strong>50%</strong> → se cargan dos líneas: Factura A (con IVA) + Factura B (sin IVA).
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" id="btn-split-100">100% — Una línea</button>
+      <button class="btn-modal-confirm" id="btn-split-50">50% — Dos líneas</button>
     </div>
   </div>
 </div>
