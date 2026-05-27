@@ -7,7 +7,7 @@ const PROVEEDORES_SPLIT = ['EVACOR', 'CLANDESTINE'];
 let currentTab = 'archivo';
 let selectedFile = null;
 let formReady = false;
-let splitData = null; // guarda importeNeto cuando es operación 50%
+let splitData = null;
 let pendingImporteNeto = null;
 
 // ─── TABS ─────────────────────────────────────────────────────────
@@ -135,6 +135,7 @@ function hideForm() {
   document.getElementById('validation-msg').classList.remove('visible');
   formReady = false;
   splitData = null;
+  pendingImporteNeto = null;
 }
 
 function clearFormFields() {
@@ -165,11 +166,12 @@ async function populateForm(data, source) {
     else if (val) el.classList.add('filled');
   });
 
-  // Guardar importeNeto para operaciones 50%
-  splitData = (data.importeNeto && data.importeNeto > 0) ? { importeNeto: data.importeNeto } : null;
+  // Guardar importeNeto sin comprometer el split todavía
+  pendingImporteNeto = (data.importeNeto && data.importeNeto > 0) ? data.importeNeto : null;
+  splitData = null;
 
-  // Mostrar modal 50/100 si el proveedor lo requiere
-  if (source === 'IA' && data.empresa && PROVEEDORES_SPLIT.includes(data.empresa) && splitData) {
+  // Mostrar modal 50/100 solo para EVACOR y CLANDESTINE
+  if (source === 'IA' && data.empresa && PROVEEDORES_SPLIT.includes(data.empresa) && pendingImporteNeto) {
     mostrarModalSplit(data.empresa);
   }
 
@@ -257,6 +259,7 @@ document.getElementById('btn-split-100').addEventListener('click', () => {
 });
 
 document.getElementById('btn-split-50').addEventListener('click', () => {
+  splitData = pendingImporteNeto ? { importeNeto: pendingImporteNeto } : null;
   document.getElementById('modal-split').classList.remove('visible');
   showStatus('info', 'Operación al 50% — se cargarán dos líneas al guardar.');
 });
@@ -321,7 +324,6 @@ async function cargarFactura() {
   };
 
   try {
-    // Línea A — siempre
     const res = await fetch('/api/cargar-factura', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -329,7 +331,6 @@ async function cargarFactura() {
     });
     if (!res.ok) throw new Error('Error en el servidor');
 
-    // Línea B — solo si es operación 50%
     if (splitData && splitData.importeNeto > 0) {
       const lineaB = {
         ...base,
