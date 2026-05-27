@@ -8,6 +8,7 @@ let currentTab = 'archivo';
 let selectedFile = null;
 let formReady = false;
 let splitData = null; // guarda importeNeto cuando es operación 50%
+let pendingImporteNeto = null;
 
 // ─── TABS ─────────────────────────────────────────────────────────
 document.querySelectorAll('.tab-btn').forEach(btn => {
